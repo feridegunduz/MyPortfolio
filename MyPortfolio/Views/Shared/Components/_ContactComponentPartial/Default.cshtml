@@ -1,4 +1,6 @@
-﻿<section id="contact" class="s-contact target-section">
+﻿@model MyPortfolio.Models.ContactFormModel
+
+<section id="contact" class="s-contact target-section">
 
     <div class="overlay"></div>
 
@@ -6,31 +8,29 @@
         <div class="col-full">
             <h3>Contact</h3>
             <h1>Say Hello.</h1>
-
-            <p class="lead">Lorem ipsum Dolor adipisicing nostrud et aute Excepteur amet commodo ea dolore irure esse Duis nulla sint fugiat cillum ullamco proident aliquip quis qui voluptate dolore veniam Ut laborum non est in officia.</p>
+            <p class="lead">I’m always happy to connect. Drop me a message!</p>
         </div>
     </div>
 
     <div class="row contact__main">
         <div class="col-eight tab-full contact__form">
-            <form name="contactForm" id="contactForm" method="post" action="">
+            <form id="contactForm">
                 <fieldset>
-
                     <div class="form-field">
-                        <input name="contactName" type="text" id="contactName" placeholder="Name" value="" minlength="2" required="" aria-required="true" class="full-width">
+                        @Html.TextBoxFor(m => m.Name, new { placeholder = "Name", @class = "full-width", minlength = "2", required = "required" })
                     </div>
                     <div class="form-field">
-                        <input name="contactEmail" type="email" id="contactEmail" placeholder="Email" value="" required="" aria-required="true" class="full-width">
+                        @Html.TextBoxFor(m => m.Email, new { placeholder = "Email", @class = "full-width", type = "email", required = "required" })
                     </div>
                     <div class="form-field">
-                        <input name="contactSubject" type="text" id="contactSubject" placeholder="Subject" value="" class="full-width">
+                        @Html.TextBoxFor(m => m.Subject, new { placeholder = "Subject", @class = "full-width" })
                     </div>
                     <div class="form-field">
-                        <textarea name="contactMessage" id="contactMessage" placeholder="message" rows="10" cols="50" required="" aria-required="true" class="full-width"></textarea>
+                        @Html.TextAreaFor(m => m.Message, new { placeholder = "Message", rows = "10", cols = "50", @class = "full-width", required = "required" })
                     </div>
                     <div class="form-field">
-                        <button class="full-width btn--primary">Submit</button>
-                        <div class="submit-loader">
+                        <button type="submit" class="full-width btn--primary">Submit</button>
+                        <div class="submit-loader" style="display:none;">
                             <div class="text-loader">Sending...</div>
                             <div class="s-loader">
                                 <div class="bounce1"></div>
@@ -39,41 +39,59 @@
                             </div>
                         </div>
                     </div>
-
                 </fieldset>
             </form>
 
-            <!-- contact-warning -->
-            <div class="message-warning">
-                Something went wrong. Please try again.
-            </div>
-
-            <!-- contact-success -->
-            <div class="message-success">
-                Your message was sent, thank you!<br>
-            </div>
-
+            <div id="formMessage" style="margin-top:15px; font-weight:bold; display:none;"></div>
         </div>
+
         <div class="col-four tab-full contact__infos">
             <h4 class="h06">Phone</h4>
-            <p>
-                Phone: (+90) 536 519 4977<br>
-                
-            </p>
+            <p>Phone: (+90) 536 519 4977<br></p>
 
             <h4 class="h06">Email</h4>
-            <p>
-                feridegnduz@gmail.com<br>
-                
-            </p>
+            <p>feridegnduz@gmail.com<br></p>
 
             <h4 class="h06">Address</h4>
-            <p>
-                İSTANBUL<br>
-                <br>
-            </p>
+            <p>İSTANBUL<br><br></p>
         </div>
-
     </div>
+</section>
 
-</section> <!-- end s-contact -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(function () {
+        $("#contactForm").submit(function (e) {
+            e.preventDefault(); // formun normal submit olmasını engelle
+
+            $(".submit-loader").show();
+
+            $.ajax({
+                url: '@Url.Action("Send", "Contact")',
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (response) {
+                    $("#formMessage")
+                        .css("color", response.color)
+                        .text(response.message)
+                        .fadeIn();
+
+                    $("#contactForm")[0].reset(); // formu temizle
+                    $(".submit-loader").hide();
+
+                    // 5 saniye sonra mesaj kaybolur
+                    setTimeout(function () {
+                        $("#formMessage").fadeOut();
+                    }, 5000);
+                },
+                error: function () {
+                    $("#formMessage")
+                        .css("color", "red")
+                        .text("Something went wrong. Please try again.")
+                        .fadeIn();
+                    $(".submit-loader").hide();
+                }
+            });
+        });
+    });
+</script>
